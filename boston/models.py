@@ -1,6 +1,8 @@
 from boston.config import FEATURE_DIMENSIONALITY
 from keras.engine import Model
-from keras.layers import Input, Dense
+from keras.layers import Input, Dense, Dropout, Reshape, Conv2D, Flatten
+
+from boston import config
 
 
 def get_model() -> Model:
@@ -12,12 +14,17 @@ def get_model() -> Model:
 
     # there are some useful imports already, check the imports from config and the
     # different layers from keras.layers!
+    input = Input(shape=(config.FEATURE_DIMENSIONALITY,))
 
-    # be sure to delete this line after you implemented your ANN and want to run it
-    raise NotImplementedError('You have to implement {}.get_model'.format(__file__))
+    hidden = Dense(units=256, activation='sigmoid')(input)
+    hidden = Reshape(target_shape=(16, 16, 1))(hidden)
+    hidden = Conv2D(filters=16, kernel_size=(4, 4))(hidden)
+    hidden = Flatten()(hidden)
+
+    output = Dense(units=1, activation='linear')(hidden)
 
     # create a new model by specifying input/output layer(s)
-    model = Model(inputs=[], outputs=[])
+    model = Model(inputs=[input], outputs=[output])
     # I already chose optimizer and loss function, you won't need to teak them (but you can of course!)
     model.compile(optimizer='sgd', loss='mse')
     return model
